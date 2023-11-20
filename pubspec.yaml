@@ -15,6 +15,9 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^2.0.0
+  test: ^1.24.9
+  mockito: ^5.4.3
+  faker: ^2.1.0
 flutter:
   uses-material-design: true
   # assets:
