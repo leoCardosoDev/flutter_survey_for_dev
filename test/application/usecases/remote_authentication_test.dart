@@ -16,23 +16,28 @@ void main() {
   late AuthenticationParams params;
   late String url;
 
+  Map<String, dynamic> mockValidData() => {"accessToken": faker.guid.guid(), "name": faker.person.name()};
+
+  When mockeRequest() => 
+    when(() => httpClient.request(url: any(named: 'url'), method: any(named: 'method'), body: any(named: 'body')));
+  
+  void mockHttpData(Map<String, dynamic> data) {
+    mockeRequest().thenAnswer((_) async => data);
+  }
+
+  void mockHttpError(HttpError error) {
+    mockeRequest().thenThrow(error);
+  }
+
   setUp(() {
     httpClient = HttpClientSpy();
     url = faker.internet.httpUrl();
-    params = AuthenticationParams(
-        email: faker.internet.email(), secret: faker.internet.password());
+    params = AuthenticationParams(email: faker.internet.email(), secret: faker.internet.password());
+    mockHttpData(mockValidData());
     sut = RemoteAuthentication(httpClient: httpClient, url: url);
   });
 
   test('Should call HttpClient with correct values', () async {
-    when(() =>
-        httpClient.request(
-            url: any(named: 'url'),
-            method: any(named: 'method'),
-            body: any(named: 'body'))).thenAnswer((_) async => {
-          "accessToken": faker.guid.guid(),
-          "name": faker.person.name(),
-        });
     await sut.auth(params);
     verify(() => httpClient.request(
         url: url,
@@ -41,59 +46,38 @@ void main() {
   });
 
   test('Should throw UnexpectedError if HttpClient returns 400', () async {
-    when(() => httpClient.request(
-        url: any(named: 'url'),
-        method: any(named: 'method'),
-        body: any(named: 'body'))).thenThrow(HttpError.badRequest);
+    mockHttpError(HttpError.badRequest);
     final future = sut.auth(params);
     expect(future, throwsA(DomainError.unexpected));
   });
 
   test('Should throw UnexpectedError if HttpClient returns 404', () async {
-    when(() => httpClient.request(
-        url: any(named: 'url'),
-        method: any(named: 'method'),
-        body: any(named: 'body'))).thenThrow(HttpError.notFound);
+    mockHttpError(HttpError.notFound);
     final future = sut.auth(params);
     expect(future, throwsA(DomainError.unexpected));
   });
 
   test('Should throw UnexpectedError if HttpClient returns 500', () async {
-    when(() => httpClient.request(
-        url: any(named: 'url'),
-        method: any(named: 'method'),
-        body: any(named: 'body'))).thenThrow(HttpError.serverError);
+    mockHttpError(HttpError.serverError);
     final future = sut.auth(params);
     expect(future, throwsA(DomainError.unexpected));
   });
 
-  test('Should throw InvalidCredentialsError if HttpClient returns 401',
-      () async {
-    when(() => httpClient.request(
-        url: any(named: 'url'),
-        method: any(named: 'method'),
-        body: any(named: 'body'))).thenThrow(HttpError.unauthorized);
+  test('Should throw InvalidCredentialsError if HttpClient returns 401', () async {
+    mockHttpError(HttpError.unauthorized);
     final future = sut.auth(params);
     expect(future, throwsA(DomainError.invalidCredentials));
   });
 
   test('Should return a Account if HttpClient returns 200', () async {
-    final accessToken = faker.guid.guid();
-    when(() =>
-        httpClient.request(
-            url: any(named: 'url'),
-            method: any(named: 'method'),
-            body: any(named: 'body'))).thenAnswer((_) async => {
-          "accessToken": accessToken,
-          "name": faker.person.name(),
-        });
+    final validData = mockValidData();
+    mockHttpData(validData);
     final account = await sut.auth(params);
-    expect(account.token, accessToken);
+    expect(account.token, validData['accessToken']);
   });
 
   test('Should throw UnexpectedError if HttpClient returns 200 with invalid data', () async {
-    when(() => httpClient.request(url: any(named: 'url'), method: any(named: 'method'), body: any(named: 'body')))
-    .thenAnswer((_) async => { "invalid_key": 'invalid_value' });
+    mockHttpData({ "invalid_key": 'invalid_value' });
     final future = sut.auth(params);
     expect(future, throwsA(DomainError.unexpected));
   });
