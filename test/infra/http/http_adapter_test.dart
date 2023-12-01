@@ -23,15 +23,23 @@ class HttpAdapter {
 class ClientSpy extends Mock implements Client {}
 
 void main() {
+  late ClientSpy client;
+  late HttpAdapter sut;
+  late String url;
+  late Map<String, String>? headers;
+
+  setUp(() {
+    client = ClientSpy();
+    sut = HttpAdapter(client);
+    url = faker.internet.httpUrl();
+    headers = {
+      'content-type': 'application/json',
+      'accept': 'application/json'
+    };
+  });
+
   group("POST", () {
     test("Should call post with correct values", () async {
-      final client = ClientSpy();
-      final sut = HttpAdapter(client);
-      final url = faker.internet.httpUrl();
-      final headers = {
-        'content-type': 'application/json',
-        'accept': 'application/json'
-      };
       when(() => client.post(Uri.parse(url), headers: headers)).thenAnswer((_) => Future.value(Response('', 200)));
       await sut.request(url: url, method: 'post');
       verify(() => client.post(Uri.parse(url), headers: headers)).called(1);
