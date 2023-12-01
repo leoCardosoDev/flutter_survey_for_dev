@@ -18,8 +18,8 @@ class HttpAdapter {
       'content-type': 'application/json',
       'accept': 'application/json'
     };
-    
-    await client.post(Uri.parse(url), headers: headers, body: jsonEncode(body));
+    final jsonBody = body != null ? jsonEncode(body) : null;
+    await client.post(Uri.parse(url), headers: headers, body: jsonBody);
   }
 }
 
@@ -48,6 +48,12 @@ void main() {
       when(() => client.post(Uri.parse(url), headers: headers, body: jsonEncode(body))).thenAnswer((_) => Future.value(Response('', 200)));
       await sut.request(url: url, method: 'post', body: body);
       verify(() => client.post(Uri.parse(url), headers: headers, body: '{"any_key":"any_value"}')).called(1);
+    });
+
+    test("Should call post without body", () async {
+      when(() => client.post(Uri.parse(url), headers: headers)).thenAnswer((_) => Future.value(Response('', 200)));
+      await sut.request(url: url, method: 'post');
+      verify(() => client.post(Uri.parse(url), headers: headers));
     });
   });
 }
