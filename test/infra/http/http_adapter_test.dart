@@ -78,5 +78,11 @@ void main() {
       final response = await sut.request(url: url, method: 'post', body: body);
       expect(response, {});
     });
+
+    test("Should return null if post returns 200 with no data", () async {
+      mockResponse(204, body: '');
+      final response = await sut.request(url: url, method: 'post', body: body);
+      expect(response, {});
+    });
   });
 }
