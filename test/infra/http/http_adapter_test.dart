@@ -5,12 +5,15 @@ import 'package:http/http.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:test/test.dart';
 
-class HttpAdapter {
+import 'package:survey_for_dev/application/http/http.dart';
+
+class HttpAdapter implements HttpClient {
   final Client client;
 
   HttpAdapter(this.client);
 
-  Future<void> request(
+  @override
+  Future<Map<String, dynamic>> request(
       {required String url,
       required String method,
       Map<String, dynamic>? body}) async {
@@ -19,7 +22,8 @@ class HttpAdapter {
       'accept': 'application/json'
     };
     final jsonBody = body != null ? jsonEncode(body) : null;
-    await client.post(Uri.parse(url), headers: headers, body: jsonBody);
+    final response = await client.post(Uri.parse(url), headers: headers, body: jsonBody);
+    return response.body.isNotEmpty ? jsonDecode(response.body) : {};
   }
 }
 
@@ -45,15 +49,21 @@ void main() {
 
   group("POST", () {
     test("Should call post with correct values", () async {
-      when(() => client.post(Uri.parse(url), headers: headers, body: jsonEncode(body))).thenAnswer((_) => Future.value(Response('', 200)));
+      when(() => client.post(Uri.parse(url), headers: headers, body: jsonEncode(body))).thenAnswer((_) => Future.value(Response('{"any_key":"any_value"}', 200)));
       await sut.request(url: url, method: 'post', body: body);
       verify(() => client.post(Uri.parse(url), headers: headers, body: '{"any_key":"any_value"}')).called(1);
     });
 
     test("Should call post without body", () async {
-      when(() => client.post(Uri.parse(url), headers: headers)).thenAnswer((_) => Future.value(Response('', 200)));
+      when(() => client.post(Uri.parse(url), headers: headers, body: any(named: 'body'))).thenAnswer((_) => Future.value(Response('', 200)));
       await sut.request(url: url, method: 'post');
       verify(() => client.post(Uri.parse(url), headers: headers));
+    });
+
+    test("Should return 200", () async {
+      when(() => client.post(Uri.parse(url), headers: headers, body: jsonEncode(body))).thenAnswer((_) => Future.value(Response('{"any_key":"any_value"}', 200)));
+      final response = await sut.request(url: url, method: 'post', body: body);
+      expect(response, {'any_key': 'any_value'});
     });
   });
 }
