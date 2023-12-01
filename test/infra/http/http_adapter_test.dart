@@ -13,17 +13,17 @@ class HttpAdapter implements HttpClient {
   HttpAdapter(this.client);
 
   @override
-  Future<Map<String, dynamic>> request(
-      {required String url,
-      required String method,
-      Map<String, dynamic>? body}) async {
+  Future<Map<String, dynamic>> request({
+    required String url,
+    required String method,
+    Map<String, dynamic>? body}) async {
     final headers = {
       'content-type': 'application/json',
       'accept': 'application/json'
     };
     final jsonBody = body != null ? jsonEncode(body) : null;
     final response = await client.post(Uri.parse(url), headers: headers, body: jsonBody);
-    return response.body.isNotEmpty ? jsonDecode(response.body) : {};
+    return response.body.isEmpty ? {} : jsonDecode(response.body);
   }
 }
 
@@ -60,10 +60,16 @@ void main() {
       verify(() => client.post(Uri.parse(url), headers: headers));
     });
 
-    test("Should return 200", () async {
+    test("Should return data if post returns 200", () async {
       when(() => client.post(Uri.parse(url), headers: headers, body: jsonEncode(body))).thenAnswer((_) => Future.value(Response('{"any_key":"any_value"}', 200)));
       final response = await sut.request(url: url, method: 'post', body: body);
       expect(response, {'any_key': 'any_value'});
+    });
+
+    test("Should return null if post returns 200 with no data", () async {
+      when(() => client.post(Uri.parse(url), headers: any(named: 'headers'), body: any(named: 'body'))).thenAnswer((_) => Future.value(Response('', 200)));
+      final response = await sut.request(url: url, method: 'post', body: body);
+      expect(response, {});
     });
   });
 }
