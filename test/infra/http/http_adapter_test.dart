@@ -3,6 +3,7 @@ import 'package:http/http.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:test/test.dart';
 
+import 'package:survey_for_dev/application/http/http.dart';
 import 'package:survey_for_dev/infra/http/http.dart';
 
 class ClientSpy extends Mock implements Client {}
@@ -67,6 +68,12 @@ void main() {
       mockResponse(204);
       final response = await sut.request(url: url, method: 'post', body: body);
       expect(response, {});
+    });
+
+    test("Should return BadRequestError if post returns 400 without body", () async {
+      mockResponse(400);
+      final future = sut.request(url: url, method: 'post');
+      expect(future, throwsA(HttpError.badRequest));
     });
   });
 }
