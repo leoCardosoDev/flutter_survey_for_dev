@@ -26,6 +26,13 @@ void main() {
     body = {'any_key': 'any_value'};
   });
 
+  group("SHARED", () {
+    test("Should throw ServerError if invalid method is provided", () async {
+      final future = sut.request(url: url, method: 'invalid_method', body: body);
+      expect(future, throwsA(HttpError.serverError));
+    });
+  });
+
   group("POST", () {
     When mockRequest() => when(() => client.post(Uri.parse(url), headers: any(named: 'headers'), body: any(named: 'body')));
 
