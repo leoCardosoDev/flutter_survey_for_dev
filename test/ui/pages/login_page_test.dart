@@ -8,5 +8,8 @@ void main() {
     await tester.pumpWidget(loginPage);
     final emailTextChildren = find.descendant(of: find.bySemanticsLabel('E-mail'), matching: find.byType(Text));
     expect(emailTextChildren, findsOneWidget);
+
+    final passwordTextChildren = find.descendant(of: find.bySemanticsLabel('Senha'), matching: find.byType(Text));
+    expect(passwordTextChildren, findsOneWidget);
   });
 }
