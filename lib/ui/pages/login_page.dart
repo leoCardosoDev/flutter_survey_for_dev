@@ -5,13 +5,43 @@ class LoginPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const SingleChildScrollView(
-      child: Column(
-        children: [
-          SizedBox(
-            child: Image(image: AssetImage('')),
-          )
-        ],
+    return Scaffold (
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            const SizedBox(
+              child: Image(image: AssetImage('lib/ui/assets/logo.png')),
+            ),
+            Text('Login'.toUpperCase()),
+            Form(child: Column(
+              children: [
+                TextFormField(
+                  decoration: const InputDecoration(
+                    labelText: 'E-mail',
+                    icon: Icon(Icons.email)
+                  ),
+                  keyboardType: TextInputType.emailAddress,
+                ),
+                TextFormField(
+                  decoration: const InputDecoration(
+                    labelText: 'Senha',
+                    icon: Icon(Icons.lock)
+                  ),
+                  obscureText: true,
+                ),
+                ElevatedButton(
+                  onPressed: (){},
+                  child: Text('Entrar'.toUpperCase())
+                ),
+                TextButton.icon(
+                  onPressed: (){}, 
+                  icon: const Icon(Icons.person), 
+                  label: const Text('Criar conta')
+                )
+              ],
+            ))
+          ],
+        ),
       ),
     );
   }
