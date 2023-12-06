@@ -47,6 +47,8 @@ void main() {
 
     final button = tester.widget<ElevatedButton>(find.byType(ElevatedButton));
     expect(button.onPressed, null);
+    
+    expect(find.byType(CircularProgressIndicator), findsNothing);
   });
 
    testWidgets('Should call validate with correct email', (WidgetTester tester) async {
