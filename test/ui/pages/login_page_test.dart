@@ -64,4 +64,11 @@ void main() {
     await tester.pump();
     expect(find.descendant(of: find.bySemanticsLabel('E-mail'), matching: find.byType(Text)), findsOneWidget);
   });
+
+   testWidgets('Should presenter emits error if errorLabel is empty', (WidgetTester tester) async {
+    await loadPage(tester);
+    emailErrorController.add('');
+    await tester.pump();
+    expect(find.descendant(of: find.bySemanticsLabel('E-mail'), matching: find.byType(Text)), findsOneWidget);
+  });
 }
