@@ -62,7 +62,7 @@ void main() {
     expect(find.text('any error'), findsOneWidget);
   });
 
-   testWidgets('Should presenter no error if email is valid', (WidgetTester tester) async {
+   testWidgets('Should presenter remove error if email is valid', (WidgetTester tester) async {
     await loadPage(tester);
     emailErrorController.add(null);
     await tester.pump();
