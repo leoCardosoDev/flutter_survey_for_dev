@@ -43,6 +43,7 @@ class LoginPage extends StatelessWidget {
                         )
                       ),
                       obscureText: true,
+                      onChanged: presenter.validatePassword,
                     ),
                   ),
                   ElevatedButton(
