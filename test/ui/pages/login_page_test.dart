@@ -11,5 +11,8 @@ void main() {
 
     final passwordTextChildren = find.descendant(of: find.bySemanticsLabel('Senha'), matching: find.byType(Text));
     expect(passwordTextChildren, findsOneWidget);
+
+    final button = tester.widget<ElevatedButton>(find.byType(ElevatedButton));
+    expect(button.onPressed, null);
   });
 }
