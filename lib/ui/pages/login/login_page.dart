@@ -31,7 +31,7 @@ class LoginPage extends StatelessWidget {
                             padding: const EdgeInsets.only(top: 20),
                             child: Icon(Icons.email, color: Theme.of(context).primaryColorLight),
                           ),
-                          errorText: snapshot.data
+                          errorText: snapshot.data?.isEmpty == true  ? null : snapshot.data
                         ),
                         keyboardType: TextInputType.emailAddress,
                         onChanged: presenter.validateEmail,
