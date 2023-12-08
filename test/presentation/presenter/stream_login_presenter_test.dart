@@ -11,6 +11,7 @@ void main() {
   late StreamLoginPresenter sut;
   late Validation validation;
   late String email;
+  late String password;
 
   When mockeValidationCall(String? field) => when(() => validation.validate(field: field ?? any(named: 'field'), value: any(named: 'value')));
 
@@ -22,6 +23,7 @@ void main() {
     validation = ValidationSpy();
     sut = StreamLoginPresenter(validation: validation);
     email = faker.internet.email();
+    password = faker.internet.password();
     mockValidation();
   });
 
@@ -43,5 +45,10 @@ void main() {
     sut.isFormValidStream.listen(expectAsync1((isValid) => expect(isValid, false)));
     sut.validateEmail(email);
     sut.validateEmail(email);
+  });
+
+  test('Should call Validation with correct password', () {
+    sut.validatePassword(password);
+    verify(() => validation.validate(field: 'password', value: password)).called(1);
   });
 }
