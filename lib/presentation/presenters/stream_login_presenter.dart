@@ -10,7 +10,7 @@ class StreamLoginPresenter {
   final Validation validation;
   final _controller = StreamController<LoginState>.broadcast();
   final _state = LoginState();
-  Stream<String?> get emailErrorStream => _controller.stream.map((state) => state.emailError);
+  Stream<String?> get emailErrorStream => _controller.stream.map((state) => state.emailError).distinct();
   StreamLoginPresenter({required this.validation});
 
   void validateEmail(String email) {
