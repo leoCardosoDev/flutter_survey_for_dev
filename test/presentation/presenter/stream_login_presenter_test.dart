@@ -139,4 +139,11 @@ void main() {
     sut.mainErrorStream.listen(expectAsync1((error) => expect(error, 'Algo errado aconteceu. Tente novamente em breve')));
     await sut.auth();
   });
+
+  test('Should not emits after dispose', () async {
+    sut.validateEmail(email);
+    expectLater(sut.emailErrorStream, neverEmits(null));
+    sut.dispose();
+    await Future.delayed(Duration.zero);
+  });
 }
