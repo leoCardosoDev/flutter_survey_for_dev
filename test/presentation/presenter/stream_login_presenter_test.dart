@@ -2,14 +2,17 @@ import 'package:faker/faker.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:test/test.dart';
 
+import 'package:survey_for_dev/domain/usecases/usecases.dart';
 import 'package:survey_for_dev/presentation/presenters/presenters.dart';
 import 'package:survey_for_dev/presentation/protocols/protocols.dart';
 
 class ValidationSpy extends Mock implements Validation {}
+class AuthenticationSpy extends Mock implements Authenticathion {}
 
 void main() {
   late StreamLoginPresenter sut;
   late Validation validation;
+  late Authenticathion authentication;
   late String email;
   late String password;
 
@@ -20,8 +23,10 @@ void main() {
   }
 
   setUp(() {
+    authentication = AuthenticationSpy();
+    authentication = AuthenticationSpy();
     validation = ValidationSpy();
-    sut = StreamLoginPresenter(validation: validation);
+    sut = StreamLoginPresenter(validation: validation, authentication: authentication);
     email = faker.internet.email();
     password = faker.internet.password();
     mockValidation();
@@ -83,5 +88,12 @@ void main() {
     sut.validateEmail(email);
     await Future.delayed(Duration.zero);
     sut.validatePassword(password);
+  });
+
+  test('Should call Authentication with correct params', () async {
+    sut.validateEmail(email);
+    sut.validatePassword(password);
+    await sut.auth();
+    verify(() => authentication.auth(AuthenticationParams(email: email, secret: password))).called(1);
   });
 }
