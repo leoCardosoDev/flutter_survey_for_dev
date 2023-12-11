@@ -2,25 +2,37 @@ import 'package:faker/faker.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:test/test.dart';
 
+import 'package:survey_for_dev/domain/entities/entities.dart';
 import 'package:survey_for_dev/domain/usecases/usecases.dart';
+
 import 'package:survey_for_dev/presentation/presenters/presenters.dart';
 import 'package:survey_for_dev/presentation/protocols/protocols.dart';
 
 class ValidationSpy extends Mock implements Validation {}
-class AuthenticationSpy extends Mock implements Authenticathion {}
+class AuthenticationSpy extends Mock implements Authentication {}
 
 void main() {
   late StreamLoginPresenter sut;
   late Validation validation;
-  late Authenticathion authentication;
+  late Authentication authentication;
   late String email;
   late String password;
 
-  When mockeValidationCall(String? field) => when(() => validation.validate(field: field ?? any(named: 'field'), value: any(named: 'value')));
+  When mockValidationCall(String? field) => when(() => validation.validate(field: field ?? any(named: 'field'), value: any(named: 'value')));
 
   void mockValidation({ String? field, String? value }) {
-    mockeValidationCall(field).thenReturn(value);
+    mockValidationCall(field).thenReturn(value);
   }
+
+  When mockAuthenticationCall() => when(() => authentication.auth(captureAny()));
+
+  void mockAuthentication() {
+    mockAuthenticationCall().thenAnswer((_) async =>  AccountEntity(faker.guid.guid()));
+  }
+
+  setUpAll(() {
+    registerFallbackValue(AuthenticationParams(email: faker.internet.email(), secret: faker.internet.password()));
+  });
 
   setUp(() {
     authentication = AuthenticationSpy();
@@ -30,6 +42,7 @@ void main() {
     email = faker.internet.email();
     password = faker.internet.password();
     mockValidation();
+    mockAuthentication();
   });
 
   test('Should call Validation with correct email', () {
@@ -95,5 +108,12 @@ void main() {
     sut.validatePassword(password);
     await sut.auth();
     verify(() => authentication.auth(AuthenticationParams(email: email, secret: password))).called(1);
+  });
+
+  test('Should emits correct event on Authentication succeeds', () async {
+    sut.validateEmail(email);
+    sut.validatePassword(password);
+     expectLater(sut.isLoadingStream, emitsInOrder([true, false]));
+    await sut.auth();
   });
 }
