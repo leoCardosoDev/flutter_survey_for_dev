@@ -17,7 +17,7 @@ void main() {
   }
 
   void mockValidation2(String? error) {
-    when(() => validation1.validate(any())).thenReturn(error);
+    when(() => validation2.validate(any())).thenReturn(error);
   }
 
   void mockValidation3(String? error) {
@@ -41,5 +41,13 @@ void main() {
   mockValidation2('');
   final error = sut.validate(field: 'any_field', value: 'any_value');
   expect(error, null);
+ });
+
+ test('should return the first error found', () {
+  mockValidation1('error_1');
+  mockValidation2('error_2');
+  mockValidation3('error_3');
+  final error = sut.validate(field: 'any_field', value: 'any_value');
+  expect(error, 'error_1');
  });
 }
