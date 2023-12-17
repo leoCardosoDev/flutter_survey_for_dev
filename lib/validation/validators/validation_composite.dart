@@ -7,6 +7,13 @@ class ValidationComposite implements Validation {
 
   @override
   String? validate({required String field, required String value}) {
-    return null;
+    String? error;
+    for (final validation in validations) {
+      error = validation.validate(value);
+      if (error?.isNotEmpty == true) {
+        return error;
+      }
+    }
+    return error;
   }
 }
