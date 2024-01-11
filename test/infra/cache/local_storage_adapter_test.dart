@@ -19,6 +19,10 @@ void main() {
     mockSecureStorage().thenAnswer((_) async => Future.value());
   }
 
+  void mockFailure() {
+    mockSecureStorage().thenThrow(Exception());
+  }
+
   setUp(() {
     secureStorage = FlutterSecureStorageSpy();
     sut = LocalStorageAdapter(secureStorage: secureStorage);
@@ -30,5 +34,11 @@ void main() {
  test('Should call save secure with correct values', () async {
   await sut.saveSecure(key: key, value: value);
   verify(() => secureStorage.write(key: key, value: value));
+ });
+
+ test('Should throw if save secure throws', () async {
+  mockFailure();
+  final future = sut.saveSecure(key: key, value: value);
+  expect(future, throwsA(const TypeMatcher<Exception>()));
  });
 }
